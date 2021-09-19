@@ -1,6 +1,7 @@
 import styled from 'styled-components';
 import Icon from '@mdi/react';
 import { mdiThumbUp } from '@mdi/js';
+import Link from 'next/link'
 
 const CardWraper = styled.div`
     width: 100%;
@@ -40,12 +41,14 @@ const Rating = styled.div`
 export default function Card(props) {
     return (
         <CardWraper>
-            <a href={"/game/"+props.id}><ImgBG ssrc={props.background_image} color={props.dominant_color}/> </a>
+            <Link href={"/game/"+props.id}>
+                <div><ImgBG ssrc={props.background_image} color={props.dominant_color}/></div> 
+            </Link>
             <BotomWr>
-                <Title><a href={"/game/"+props.id}>{props.name}</a></Title>
+                <Title><Link href={`/game/${props.id}`}>{props.name}</Link></Title>
                 Релиз:{new Date(props.released).toLocaleDateString()}
                 <Rating>
-                    <Icon path={mdiThumbUp} style={{'margin-right':'5px'}} size={1}/>{props.rating} 
+                    <Icon path={mdiThumbUp} style={{'marginRight':'5px'}} size={1}/>{props.rating} 
                 </Rating>
             </BotomWr>
         </CardWraper>

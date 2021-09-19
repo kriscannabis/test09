@@ -1,46 +1,88 @@
-import Layout from '../components/Layout'
-import Card from '../components/Card'
+import Layout from '../components/Layout';
+import PageTurn from '../components/PageTurn';
+import Card from '../components/Card';
 import Grid from '@material-ui/core/Grid';
-import Paper from '@material-ui/core/Paper';
+import LazyLoad from 'react-lazyload';
+import React, { useState, useEffect } from 'react';
 
-export default function Home(props) {
-//   xs, extra-small: 0px
-// sm, small: 600px
-// md, medium: 960px
-// lg, large: 1280px
-// xl, extra-large: 1920px
+class Home extends React.Component{
 
-const games = props.games.results;
-  return (
+  state = {
+    games:[],
+    page:1
+  }
+
+  componentDidMount(){
+    this.setState(
+      {games:this.props.games.results}
+    )
+  }
+
+  cb = async(page)=>{
+    console.log ('page turn xz', page)
+
+      const games = await fetch('https://api.rawg.io/api/games?key='
+      +'b093499947d5436eb48457c970affdbf'
+      +'&page_size=40'
+      +'&page='+page
+      ,{
+        method:  "GET",
+        headers: { "Content-Type": "application/json" }, 
+      })
+      .then(r => r.json())
+      // .then(r => console.log(gameList))
+      .then((r)=>{
+        this.setState({
+          ...this.state,
+          games: [...this.state.games.concat(r.results)],
+          page: page
+          
+        })
+      });
+  }
+
+
+
+  render(){
+
+    const games = this.state.games || this.props.games.results;
     
-      <Layout>
-        {/* <Card/>
-        <Card/>
-        <Card/>
-        <Card/> */}
+    return(
+      <Layout>      
       
       <Grid item xs={12}>
         <Grid container justifyContent="flex-start" spacing={2} >
           {games.map((game, key ) => (
-            <Grid key={key} item 
-            xs={12}
-            sm={6}
-            md={4}
-            lg={4}            
-            >
-              <Card {...game}/>
-            </Grid>
+            
+              <Grid key={key} item 
+              xs={12}
+              sm={6}
+              md={4}
+              lg={4}            
+              >
+                
+                <LazyLoad key={key} height={200} once offset={100}>
+                  <PageTurn pageItem={key} cb={this.cb}/>
+                  <Card {...game} />
+                </LazyLoad>
+              </Grid>
+            
           ))}
         </Grid>
       </Grid>
       </Layout>
-   
-  )
+    )
+  }
 }
 
-Home.getInitialProps = async (context)=>{
 
-  const games = await fetch('https://api.rawg.io/api/games?key=b093499947d5436eb48457c970affdbf', {
+Home.getInitialProps = async (context)=>{
+  const api_key = 'b093499947d5436eb48457c970affdbf';
+  const games = await fetch('https://api.rawg.io/api/games?key='
+  +api_key
+  +'&page_size=40'
+  +'&page=1'
+  ,{
     method:  "GET",
     headers: { "Content-Type": "application/json" }, 
   })
@@ -50,3 +92,5 @@ Home.getInitialProps = async (context)=>{
     games: games
   }
 }
+
+export default Home;
